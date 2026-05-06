@@ -36,13 +36,13 @@ public class ReviewService {
     public void createReview(ReviewRequest request) {
         Users currentUser = securityUtils.getCurrentUser();
         Lectures lecture = lectureRepository.findById(request.getLectureId())
-                .orElseThrow(() -> new LectureNotFoundException("해당 강의를 찾을 수 없습니다."));
+                .orElseThrow(LectureNotFoundException::new);
 
         if (!enrollmentRepository.existsByUserIdAndLecturesId(currentUser.getId(), lecture.getId())) {
-            throw new NotEnrolledException("수강 중인 강의에만 리뷰를 작성할 수 있습니다.");
+            throw new NotEnrolledException();
         }
         if (reviewRepository.existsByUser_IdAndLectures_Id(currentUser.getId(), lecture.getId())) {
-            throw new DuplicateReviewException("이미 리뷰를 작성한 강의입니다.");
+            throw new DuplicateReviewException();
         }
 
         Reviews review = Reviews.builder()
@@ -60,10 +60,10 @@ public class ReviewService {
     public void updateReview(Long reviewId, ReviewRequest request) {
         Users currentUser = securityUtils.getCurrentUser();
         Reviews review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
+                .orElseThrow(ReviewNotFoundException::new);
 
         if (!Objects.equals(review.getUser().getId(), currentUser.getId())) {
-            throw new NotReviewOwnerException("본인의 리뷰만 수정할 수 있습니다.");
+            throw new NotReviewOwnerException();
         }
 
         review.setRating(request.getRating());
@@ -74,7 +74,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewSummaryResponse getReviewSummary(Long lectureId) {
         if (!lectureRepository.existsById(lectureId)) {
-            throw new LectureNotFoundException("해당 강의를 찾을 수 없습니다.");
+            throw new LectureNotFoundException();
         }
         Double avgRating = reviewRepository.getAverageRating(lectureId);
         Long count = reviewRepository.countByLectures_Id(lectureId);
@@ -85,7 +85,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<ReviewResponse> getReviews(Long lectureId) {
         if (!lectureRepository.existsById(lectureId)) {
-            throw new LectureNotFoundException("해당 강의를 찾을 수 없습니다.");
+            throw new LectureNotFoundException();
         }
         return reviewRepository.findByLectures_IdOrderByCreatedAtDesc(lectureId)
                 .stream()

@@ -4,7 +4,7 @@ import app_programming_development.Class.exceptions.DomainException;
 import org.springframework.http.HttpStatus;
 
 public class DuplicateReviewException extends DomainException {
-    public DuplicateReviewException(String message) {
-        super(HttpStatus.CONFLICT, message);
+    public DuplicateReviewException() {
+        super(HttpStatus.CONFLICT, "이미 리뷰를 작성한 강의입니다.");
     }
 }

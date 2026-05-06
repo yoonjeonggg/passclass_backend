@@ -30,7 +30,7 @@ public class CertificateService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
-            throw new AdminRoleRequiredException("관리자만 자격증을 등록할 수 있습니다.");
+            throw new AdminRoleRequiredException();
         }
 
         Certificates certificate = Certificates.builder()
@@ -67,11 +67,11 @@ public class CertificateService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
-            throw new AdminRoleRequiredException("관리자만 자격증을 수정할 수 있습니다.");
+            throw new AdminRoleRequiredException();
         }
 
         Certificates certificate = certificateRepository.findById(id)
-                .orElseThrow(() -> new CertificateNotFoundException("자격증을 찾을 수 없습니다."));
+                .orElseThrow(CertificateNotFoundException::new);
 
         certificate.setName(request.getName());
         certificate.setDescription(request.getDescription());
@@ -85,11 +85,11 @@ public class CertificateService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
-            throw new AdminRoleRequiredException("관리자만 자격증을 삭제할 수 있습니다.");
+            throw new AdminRoleRequiredException();
         }
 
         Certificates certificate = certificateRepository.findById(id)
-                .orElseThrow(() -> new CertificateNotFoundException("자격증을 찾을 수 없습니다."));
+                .orElseThrow(CertificateNotFoundException::new);
 
         certificateRepository.delete(certificate);
     }

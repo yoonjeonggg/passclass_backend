@@ -4,7 +4,7 @@ import app_programming_development.Class.exceptions.DomainException;
 import org.springframework.http.HttpStatus;
 
 public class ReviewNotFoundException extends DomainException {
-    public ReviewNotFoundException(String message) {
-        super(HttpStatus.NOT_FOUND, message);
+    public ReviewNotFoundException() {
+        super(HttpStatus.NOT_FOUND, "해당 리뷰를 찾을 수 없습니다.");
     }
 }

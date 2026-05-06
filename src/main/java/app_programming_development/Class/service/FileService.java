@@ -3,6 +3,10 @@ package app_programming_development.Class.service;
 import app_programming_development.Class.dto.response.FileResponse;
 import app_programming_development.Class.entity.Files;
 import app_programming_development.Class.entity.Users;
+import app_programming_development.Class.exceptions.badRequest.EmptyFileException;
+import app_programming_development.Class.exceptions.badRequest.FileSizeExceededException;
+import app_programming_development.Class.exceptions.badRequest.InvalidFileExtensionException;
+import app_programming_development.Class.exceptions.badRequest.InvalidFileTypeException;
 import app_programming_development.Class.exceptions.notFound.UploadedFileNotFoundException;
 import app_programming_development.Class.repository.FileRepository;
 import app_programming_development.Class.security.SecurityUtils;
@@ -70,7 +74,7 @@ public class FileService {
     @Transactional(readOnly = true)
     public FileResponse getFileInfo(Long fileId) {
         Files file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new UploadedFileNotFoundException("해당 파일을 찾을 수 없습니다."));
+                .orElseThrow(UploadedFileNotFoundException::new);
         return FileResponse.from(file);
     }
 
@@ -78,7 +82,7 @@ public class FileService {
     @Transactional
     public void deleteFile(Long fileId) throws IOException {
         Files file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new UploadedFileNotFoundException("해당 파일을 찾을 수 없습니다."));
+                .orElseThrow(UploadedFileNotFoundException::new);
 
         Path filePath = Paths.get(uploadDir).resolve(file.getStoredName());
         java.nio.file.Files.deleteIfExists(filePath);
@@ -87,20 +91,20 @@ public class FileService {
 
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
+            throw new EmptyFileException();
         }
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다.");
+            throw new FileSizeExceededException();
         }
         String extension = getExtension(file.getOriginalFilename()).toLowerCase();
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다. 허용 형식: " + ALLOWED_EXTENSIONS);
+            throw new InvalidFileTypeException();
         }
     }
 
     private String getExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
-            throw new IllegalArgumentException("파일 확장자를 확인할 수 없습니다.");
+            throw new InvalidFileExtensionException();
         }
         return filename.substring(filename.lastIndexOf('.') + 1);
     }

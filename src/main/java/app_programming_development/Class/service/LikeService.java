@@ -27,7 +27,7 @@ public class LikeService {
     public LikeResponse toggleLike(Long lectureId) {
         Users currentUser = securityUtils.getCurrentUser();
         Lectures lecture = lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new LectureNotFoundException("해당 강의를 찾을 수 없습니다."));
+                .orElseThrow(LectureNotFoundException::new);
 
         boolean alreadyLiked = lectureLikeRepository.existsByUser_IdAndLectures_Id(currentUser.getId(), lectureId);
 

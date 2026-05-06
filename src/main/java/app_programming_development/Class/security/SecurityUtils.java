@@ -19,16 +19,16 @@ public class SecurityUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new NotAuthenticatedException("로그인이 필요합니다.");
+            throw new NotAuthenticatedException();
         }
 
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
             return usersRepository.findByEmail(springUser.getUsername())
-                    .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+                    .orElseThrow(UserNotFoundException::new);
         } else {
-            throw new NotAuthenticatedException("로그인이 필요합니다.");
+            throw new NotAuthenticatedException();
         }
     }
 

@@ -42,14 +42,14 @@ public class AuthService {
     // 로그인
     public TokenResponse login(LoginRequest request) {
         Users user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("계정이 존재하지 않습니다."));
+                .orElseThrow(UserNotFoundException::new);
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
         } catch (BadCredentialsException e) {
-            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+            throw new PasswordMismatchException();
         }
 
         String accessToken = tokenProvider.createToken(authentication.getName());
@@ -72,7 +72,7 @@ public class AuthService {
     // 회원가입
     public SignupResponse signup(SignupRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("이미 존재하는 계정입니다.");
+            throw new UserAlreadyExistsException();
         }
 
         Users user = Users.builder()
@@ -91,17 +91,17 @@ public class AuthService {
     public TokenResponse autoLogin(AutoLoginRequest request) {
         String refreshToken = request.getRefreshToken();
         if (!tokenProvider.validateToken(refreshToken)) {
-            throw new RefreshTokenNotFoundException("유효하지 않은 리프레시 토큰입니다.");
+            throw new RefreshTokenNotFoundException();
         }
 
         RefreshTokens existingToken = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("유효하지 않은 리프레시 토큰입니다."));
+                .orElseThrow(RefreshTokenNotFoundException::new);
 
         // 토큰으로 사용자 추출
         String email = tokenProvider.getEmail(refreshToken);
 
         Users user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("계정이 존재하지 않습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         // 새로운 accessToken, RefreshToken 생성
         String newAccessToken = tokenProvider.createToken(user.getEmail());
@@ -126,7 +126,6 @@ public class AuthService {
         // 토큰 삭제
         refreshTokenRepository.deleteByUser(user);
     }
-
 
 
 }

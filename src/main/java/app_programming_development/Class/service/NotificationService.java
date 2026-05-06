@@ -37,10 +37,10 @@ public class NotificationService {
     public void markAsRead(Long notificationId) {
         Users currentUser = securityUtils.getCurrentUser();
         Notifications notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new NotificationNotFoundException("해당 알림을 찾을 수 없습니다."));
+                .orElseThrow(NotificationNotFoundException::new);
 
         if (!Objects.equals(notification.getUser().getId(), currentUser.getId())) {
-            throw new NotNotificationOwnerException("본인의 알림만 읽음 처리할 수 있습니다.");
+            throw new NotNotificationOwnerException();
         }
 
         notification.setRead(true);

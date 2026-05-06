@@ -20,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,11 +43,11 @@ public class LectureService {
     public LectureCreateResponse createLecture(LectureRequest request) {
         Users instructor = securityUtils.getCurrentUser();
         if (!instructor.getRole().equals(UserRole.TEACHER)) {
-            throw new TeacherRoleRequiredException("강의는 강사만 생성할 수 있습니다.");
+            throw new TeacherRoleRequiredException();
         }
 
         Certificates certificate = certificateRepository.findById(request.getCertificateId())
-                .orElseThrow(() -> new CertificateNotFoundException("해당 자격증을 찾을 수 없습니다."));
+                .orElseThrow(CertificateNotFoundException::new);
 
         Lectures lecture = Lectures.builder()
                 .instructor(instructor)
@@ -90,14 +92,21 @@ public class LectureService {
 
     public LectureDetailResponse getLecture(Long lectureId) {
         Lectures lecture = lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new LectureNotFoundException("해당 강의를 찾을 수 없습니다."));
+                .orElseThrow(LectureNotFoundException::new);
 
         Double rating = reviewRepository.getAverageRating(lectureId);
         Long likeCount = lectureLikeRepository.countByLectures_Id(lectureId);
         Long studentCount = enrollmentRepository.countByLectures_Id(lectureId);
 
-        Users currentUser = securityUtils.getCurrentUser();
-        boolean isLiked = lectureLikeRepository.existsByUser_IdAndLectures_Id(currentUser.getId(), lectureId);
+        boolean isLiked = false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.User) {
+            try {
+                Users currentUser = securityUtils.getCurrentUser();
+                isLiked = lectureLikeRepository.existsByUser_IdAndLectures_Id(currentUser.getId(), lectureId);
+            } catch (Exception ignored) {}
+        }
 
         List<ChapterDto> chapters = lectureChapterRepository.findByLectures_Id(lectureId)
                 .stream()

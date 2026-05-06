@@ -6,6 +6,7 @@ import app_programming_development.Class.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -79,8 +80,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(
-                                "/error"
+                        .requestMatchers("/error").permitAll()
+                        // 비로그인 조회 허용
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/lecture", "/api/lecture/**",
+                                "/api/certificates", "/api/certificates/**",
+                                "/api/reviews", "/api/reviews/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

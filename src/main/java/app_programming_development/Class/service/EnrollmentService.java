@@ -30,11 +30,11 @@ public class EnrollmentService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (enrollmentRepository.existsByUserIdAndLecturesId(currentUser.getId(), lectureId)) {
-            throw new AlreadyEnrolledException("이미 수강 신청된 강의입니다.");
+            throw new AlreadyEnrolledException();
         }
 
         Lectures lecture = lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new LectureNotFoundException("해당 강의를 찾을 수 없습니다."));
+                .orElseThrow(LectureNotFoundException::new);
 
         Enrollments enrollment = Enrollments.builder()
                 .user(currentUser)
@@ -52,7 +52,7 @@ public class EnrollmentService {
 
         Enrollments enrollment = enrollmentRepository
                 .findByUserIdAndLecturesId(currentUser.getId(), lectureId)
-                .orElseThrow(() -> new EnrollmentNotFoundException("수강 내역을 찾을 수 없습니다."));
+                .orElseThrow(EnrollmentNotFoundException::new);
 
         enrollmentRepository.delete(enrollment);
     }

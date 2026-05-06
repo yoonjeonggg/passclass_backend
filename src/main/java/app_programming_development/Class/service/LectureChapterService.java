@@ -37,11 +37,11 @@ public class LectureChapterService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.TEACHER)) {
-            throw new TeacherRoleRequiredException("강사만 챕터를 등록할 수 있습니다.");
+            throw new TeacherRoleRequiredException();
         }
 
         Lectures lecture = lectureRepository.findById(request.getLectureId())
-                .orElseThrow(() -> new LectureNotFoundException("해당 강의를 찾을 수 없습니다."));
+                .orElseThrow(LectureNotFoundException::new);
 
         LectureChapters chapter = LectureChapters.builder()
                 .lectures(lecture)
@@ -70,11 +70,11 @@ public class LectureChapterService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.TEACHER)) {
-            throw new TeacherRoleRequiredException("강사만 챕터를 수정할 수 있습니다.");
+            throw new TeacherRoleRequiredException();
         }
 
         LectureChapters chapter = lectureChapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ChapterNotFoundException("해당 챕터를 찾을 수 없습니다."));
+                .orElseThrow(ChapterNotFoundException::new);
 
         chapter.setTitle(request.getTitle());
         chapter.setVideoUrl(request.getVideoUrl());
@@ -89,11 +89,11 @@ public class LectureChapterService {
         Users currentUser = securityUtils.getCurrentUser();
 
         if (!currentUser.getRole().equals(UserRole.TEACHER)) {
-            throw new TeacherRoleRequiredException("강사만 챕터를 삭제할 수 있습니다.");
+            throw new TeacherRoleRequiredException();
         }
 
         LectureChapters chapter = lectureChapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ChapterNotFoundException("해당 챕터를 찾을 수 없습니다."));
+                .orElseThrow(ChapterNotFoundException::new);
 
         lectureChapterRepository.delete(chapter);
     }
@@ -102,7 +102,7 @@ public class LectureChapterService {
     @Transactional(readOnly = true)
     public List<LectureChapterResponse> getChapters(Long lectureId) {
         if (!lectureRepository.existsById(lectureId)) {
-            throw new LectureNotFoundException("해당 강의를 찾을 수 없습니다.");
+            throw new LectureNotFoundException();
         }
         return lectureChapterRepository.findByLectures_IdOrderByChapterOrderAsc(lectureId)
                 .stream()

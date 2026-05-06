@@ -29,12 +29,12 @@ public class ChapterWatchService {
         Users currentUser = securityUtils.getCurrentUser();
 
         LectureChapters chapter = lectureChapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ChapterNotFoundException("해당 챕터를 찾을 수 없습니다."));
+                .orElseThrow(ChapterNotFoundException::new);
 
         Long lectureId = chapter.getLectures().getId();
 
         if (!enrollmentRepository.existsByUserIdAndLecturesId(currentUser.getId(), lectureId)) {
-            throw new NotEnrolledException("수강 신청 후 이용 가능합니다.");
+            throw new NotEnrolledException();
         }
 
         // 진도 레코드 없으면 자동 생성 (처음 시청)
@@ -56,11 +56,11 @@ public class ChapterWatchService {
         Users currentUser = securityUtils.getCurrentUser();
 
         LectureChapters chapter = lectureChapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ChapterNotFoundException("해당 챕터를 찾을 수 없습니다."));
+                .orElseThrow(ChapterNotFoundException::new);
 
         if (!enrollmentRepository.existsByUserIdAndLecturesId(
                 currentUser.getId(), chapter.getLectures().getId())) {
-            throw new NotEnrolledException("수강 신청 후 이용 가능합니다.");
+            throw new NotEnrolledException();
         }
 
         ChapterProgress progress = chapterProgressRepository

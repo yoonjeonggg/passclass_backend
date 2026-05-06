@@ -21,7 +21,7 @@ public class UserService {
     // 프로필 조회
     public ProfileResponse getProfile(Long userId) {
         Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 계정입니다."));
+                .orElseThrow(UserNotFoundException::new);
         return ProfileResponse.from(user);
     }
 
