@@ -116,13 +116,17 @@ public class LectureService {
 
         List<ChapterDto> chapters = lectureChapterRepository.findByLectures_Id(lectureId)
                 .stream()
-                .map(ch -> new ChapterDto(ch.getId(), ch.getTitle(), ch.getChapterOrder()))
+                .map(ch -> ChapterDto.builder()
+                        .id(ch.getId())
+                        .title(ch.getTitle())
+                        .order(ch.getChapterOrder())
+                        .build())
                 .toList();
 
-        InstructorDto instructor = new InstructorDto(
-                lecture.getInstructor().getNickname(),
-                lecture.getInstructor().getProfileUrl()
-        );
+        InstructorDto instructor = InstructorDto.builder()
+                .nickname(lecture.getInstructor().getNickname())
+                .profileImage(lecture.getInstructor().getProfileUrl())
+                .build();
 
         return LectureDetailResponse.builder()
                 .id(lecture.getId())

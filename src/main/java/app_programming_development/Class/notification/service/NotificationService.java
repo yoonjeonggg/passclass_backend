@@ -49,7 +49,7 @@ public class NotificationService {
     public UnreadCountResponse getUnreadCount() {
         Users currentUser = securityUtils.getCurrentUser();
         Long count = notificationRepository.countByUser_IdAndIsRead(currentUser.getId(), false);
-        return new UnreadCountResponse(count);
+        return UnreadCountResponse.builder().unreadCount(count).build();
     }
 
     @Transactional

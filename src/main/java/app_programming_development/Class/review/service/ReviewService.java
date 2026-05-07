@@ -75,7 +75,10 @@ public class ReviewService {
         }
         Double avgRating = reviewRepository.getAverageRating(lectureId);
         Long count = reviewRepository.countByLectures_Id(lectureId);
-        return new ReviewSummaryResponse(avgRating != null ? avgRating : 0.0, count);
+        return ReviewSummaryResponse.builder()
+                .averageRating(avgRating != null ? avgRating : 0.0)
+                .reviewCount(count)
+                .build();
     }
 
     @Transactional(readOnly = true)

@@ -64,7 +64,10 @@ public class AuthService {
                 .build();
         refreshTokenRepository.save(refreshTokens);
 
-        return new TokenResponse(accessToken, refreshToken);
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     public SignupResponse signup(SignupRequest request) {
@@ -112,7 +115,10 @@ public class AuthService {
                 .build();
         refreshTokenRepository.save(refreshTokens);
 
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return TokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     public void logOut() {

@@ -33,7 +33,7 @@ public class LikeService {
 
         if (alreadyLiked) {
             lectureLikeRepository.deleteByUser_IdAndLectures_Id(currentUser.getId(), lectureId);
-            return new LikeResponse(false);
+            return LikeResponse.builder().isLiked(false).build();
         } else {
             LectureLikes like = LectureLikes.builder()
                     .user(currentUser)
@@ -45,7 +45,7 @@ public class LikeService {
                     NotificationType.LECTURE_LIKED,
                     lecture.getTitle() + " 강의에 새로운 좋아요가 추가되었습니다."
             );
-            return new LikeResponse(true);
+            return LikeResponse.builder().isLiked(true).build();
         }
     }
 }
