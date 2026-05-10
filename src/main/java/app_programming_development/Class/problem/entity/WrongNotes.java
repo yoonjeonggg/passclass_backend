@@ -31,6 +31,9 @@ public class WrongNotes {
     @JoinColumn(name="problem_id", nullable = false)
     private Problems problems;
 
+    @Column(name = "selected_answer", nullable = false)
+    private int selectedAnswer;
+
     @Column(name="memo", columnDefinition = "TEXT")
     private String memo;
 

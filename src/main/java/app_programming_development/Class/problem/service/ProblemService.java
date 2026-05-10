@@ -127,13 +127,18 @@ public class ProblemService {
         problemSolvesRepository.save(solve);
 
         if (!correct) {
-            wrongNotesRepository.findByUser_IdAndProblems_Id(user.getId(), problemId)
-                    .orElseGet(() -> wrongNotesRepository.save(
-                            WrongNotes.builder()
-                                    .user(user)
-                                    .problems(problem)
-                                    .build()
-                    ));
+            WrongNotes existing = wrongNotesRepository.findByUser_IdAndProblems_Id(user.getId(), problemId)
+                    .orElse(null);
+            if (existing != null) {
+                existing.setSelectedAnswer(request.getSelectedAnswer());
+                wrongNotesRepository.save(existing);
+            } else {
+                wrongNotesRepository.save(WrongNotes.builder()
+                        .user(user)
+                        .problems(problem)
+                        .selectedAnswer(request.getSelectedAnswer())
+                        .build());
+            }
         }
 
         log.info("Problem solved: problemId={}, userId={}, correct={}", problemId, user.getId(), correct);
